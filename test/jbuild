@@ -1,0 +1,9 @@
+(jbuild_version 1)
+
+(executable
+ ((name tst_test)
+  (libraries (core qcheck ternary_search_tree))))
+
+(alias
+ ((name runtest)
+  (action (run ./tst_test.exe --verbose))))
