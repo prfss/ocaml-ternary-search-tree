@@ -1,0 +1,22 @@
+opam-version: "1.2"
+
+name: "ternary_search_tree"
+version: "0.1"
+maintainer: "s.sawada <gprfss4815@gmail.com>"
+authors: [ "s.sawada <gprfss4815@gmail.com>" ]
+homepage: "https://github.com/prfss/ocaml-ternary-search-tree"
+dev-repo: "https://github.com/prfss/ocaml-ternary-search-tree.git"
+license: "MIT"
+
+build: [
+  ["jbuilder" "build" "-p" name "-j" jobs]
+]
+
+build-test: ["jbuilder" "runtest"]
+
+depends: [
+  "base-threads" {build}
+  "core" {test & >= "v0.9.0" & <= "v0.9.2" }
+  "jbuilder" {build}
+  "qcheck" {test & >= "0.8" }
+]
