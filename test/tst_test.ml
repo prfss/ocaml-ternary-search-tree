@@ -1,7 +1,9 @@
 open Core
 open QCheck
 
-module Tst = Ternary_search_tree
+
+module Tst = Ternary_search_tree.Make(Char)
+open Ternary_search_tree
 
 
 let add_all ?(override=false) tst ls ~f = List.foldi ls ~init:tst ~f:(fun i tst l -> Tst.add tst l (f i l))
@@ -98,7 +100,7 @@ let pm_search_literal =
   Test.make ~count:100 ~name:"pm_search literal"
     (list (list char))
     (fun ls ->
-       let patterns = List.(map ls ~f:(fun l -> map l ~f:(fun c -> Tst.Pattern_match.Literal c))) in
+       let patterns = List.(map ls ~f:(fun l -> map l ~f:(fun c -> Pattern_match.Literal c))) in
        let tst = add_all_unit Tst.create ls in
        List.for_alli patterns ~f:(fun i pat -> List.length (Tst.pm_search tst pat) = 1))
 
@@ -109,7 +111,7 @@ let pm_search_wildcard =
        let unique_list = unique ls in
        let tst = add_all_unit Tst.create unique_list in
        let expected_count = List.(length @@ filter ~f:(fun x -> length x = max 0 n) unique_list) in
-       List.length (Tst.pm_search tst (replicate n Tst.Pattern_match.Wildcard)) = expected_count)
+       List.length (Tst.pm_search tst (replicate n Pattern_match.Wildcard)) = expected_count)
 
 let near_search_negative_distance =
   Test.make ~count:100 ~name:"near_search negative distance"
@@ -141,11 +143,10 @@ let words = ["ban";"as";"like";"is";"bike";"it";"panama";"in";"rice";"banana";"d
 let tst = words |> List.map ~f:String.to_list |> add_all_unit Tst.create
 
 let to_pattern s =
-  let open Tst.Pattern_match in
   let rec aux = function
     | [] -> []
-    | '.' :: xs -> Wildcard :: aux xs
-    | x :: xs -> Literal x :: aux xs
+    | '.' :: xs -> Pattern_match.Wildcard :: aux xs
+    | x :: xs -> Pattern_match.Literal x :: aux xs
   in aux (String.to_list s)
 
 let result_to_string_list = List.map ~f:(fun (l,_) -> String.of_char_list l)
