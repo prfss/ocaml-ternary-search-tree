@@ -12,8 +12,8 @@ module Make :
     val create : 'v t
     val add : ?override:bool -> 'v t -> Char.t list -> value:'v -> 'v t
     val remove : 'v t -> Char.t list -> 'v t
-    val fold : 'v t -> init:'c -> f:('c -> Char.t list -> 'v -> 'c) -> 'c
-    val rev_fold : 'v t -> init:'c -> f:('c -> Char.t list -> 'v -> 'c) -> 'c
+    val fold : 'v t -> init:'a -> f:('a -> Char.t list -> 'v -> 'a) -> 'a
+    val rev_fold : 'v t -> init:'a -> f:('a -> Char.t list -> 'v -> 'a) -> 'a
     val count : 'v t -> int
     val to_list : 'v t -> (Char.t list * 'v) list
     val modify : 'v t -> Char.t list -> f:('v -> 'v) -> 'v t
