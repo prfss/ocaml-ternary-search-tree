@@ -20,36 +20,36 @@ module Make(Char : Comparable) = struct
 
   let create = Null
 
-  let add ?(override=false) tst path ~value =
-    let rec add' tst path =
+  (** The most generic insertion/deletion function. If [path] is associated with [value] in [tst], [Some value] is given to [f].
+      Otherwise [None] is. And then if [f] returns [None] the association disappears. If [f] returns [Some new_value]
+      the [path] with [new_value]. *)
+  let change tst path ~f =
+    let new_end tst = function
+      | None -> tst
+      | Some v -> End (v, tst) in
+    let new_branch c l m r =
+      match l, m, r with
+      | Null, Null, Null -> Null
+      | _ -> Branch (c, l, m, r) in
+    let rec change' tst path =
       match path, tst with
-      | [], Null -> End (value, Null)
-      | [], End (_, m) -> if override then End (value, m) else tst
-      | [], Branch _ -> End (value, tst)
-      | c :: path', Null -> Branch (c, Null, add' Null path', Null)
-      | _, End (v, m) -> End (v, add' m path)
+      | [], Null | [], Branch _ -> new_end tst (f None)
+      | [], End (v, m) -> new_end m (f (Some v))
+      | c :: path', Null -> new_branch c Null (change' Null path') Null
+      | _, End (v, m) -> End (v, change' m path)
       | c :: path', Branch (c', l, m, r) ->
         match Char.compare c c' with
-        | x when x < 0 -> Branch (c', add' l path, m, r)
-        | 0            -> Branch (c, l, add' m path', r)
-        | _            -> Branch (c', l, m, add' r path)
-    in add' tst path
+        | x when x < 0 -> new_branch c' (change' l path) m r
+        | 0            -> new_branch c l (change' m path') r
+        | _            -> new_branch c' l m (change' r path)
+    in change' tst path
 
-  let rec remove tst path =
-    match path, tst with
-    | [], Null | [], Branch _ -> tst
-    | [], End (_, m) -> m
-    | _, Null -> tst
-    | _, End (v, m) -> End (v, remove m path)
-    | c :: path', Branch (c', l, m, r) ->
-      let new_nodes =
-        match Char.compare c c' with
-        | x when x < 0 -> remove l path, m, r
-        | 0            -> l, remove m path', r
-        | _            -> l, m, remove r path
-      in match new_nodes with
-      | Null, Null, Null -> Null
-      | new_l, new_m, new_r -> Branch (c', new_l, new_m, new_r)
+  let add ?(override=false) tst path ~value =
+    change tst path (function | None -> Some value
+                              | Some _ when override -> Some value
+                              | otherwise -> otherwise)
+
+  let rec remove tst path = change tst path (fun _ -> None)
 
   let fold tst ~init ~f =
     let rec aux accum rev_path = function
@@ -75,16 +75,7 @@ module Make(Char : Comparable) = struct
 
   let to_list tst = rev_fold tst ~init:[] ~f:(fun accum p v -> (p,v) :: accum)
 
-  let rec modify tst path ~f =
-    match path, tst with
-    | _, Null | [], Branch _ -> tst
-    | [], End (v, m) -> End (f v, m)
-    | _, End (v, m) -> End (v, modify m path ~f)
-    | c :: path', Branch (c', l, m, r) ->
-      match Char.compare c c' with
-      | x when x < 0 -> Branch (c', modify l path ~f, m, r)
-      | 0            -> Branch (c, l, modify m path' ~f, r)
-      | _            -> Branch (c', l, m, modify r path ~f)
+  let modify tst path ~f = change tst path ~f:(function | None -> None | Some v -> Some (f v))
 
   let rec search tst path =
     match path, tst with
