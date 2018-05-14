@@ -14,9 +14,11 @@ module Make :
     val remove : 'v t -> Char.t list -> 'v t
     val fold : 'v t -> init:'a -> f:('a -> Char.t list -> 'v -> 'a) -> 'a
     val rev_fold : 'v t -> init:'a -> f:('a -> Char.t list -> 'v -> 'a) -> 'a
+    val map : 'v t -> f:(Char.t list -> 'v -> 'v) -> 'v t
+    val iter : 'v t -> f:(Char.t list -> 'v -> unit) -> unit
     val count : 'v t -> int
     val to_list : 'v t -> (Char.t list * 'v) list
-    val modify : 'v t -> Char.t list -> f:('v -> 'v) -> 'v t
+    val update : ?default:'v -> 'v t -> Char.t list -> f:('v -> 'v) -> 'v t
     val search : 'v t -> Char.t list -> 'v option
     val mem : 'v t -> Char.t list -> bool
     val pm_search : 'v t -> Char.t Pattern_match.t list -> (Char.t list * 'v) list

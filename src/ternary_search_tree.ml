@@ -68,11 +68,29 @@ module Make(Char : Comparable) = struct
         aux accum_m rev_path l
     in aux init [] tst
 
+  let map tst ~f =
+    let rec map' rev_path = function
+      | Null -> Null
+      | End (v, m) -> End (f (List.rev rev_path) v, map' rev_path m)
+      | Branch (c, l, m, r) ->
+        Branch (c, map' rev_path l, map' (c :: rev_path) m, map' rev_path r)
+    in map' [] tst
+
+  let iter tst ~f =
+    let rec iter' rev_path = function
+      | Null -> ()
+      | End (v, m) -> f (List.rev rev_path) v; iter' rev_path m
+      | Branch (c, l, m, r) ->
+        iter' rev_path l; iter' (c :: rev_path) m; iter' rev_path r
+    in iter' [] tst
+
   let count tst = fold tst ~init:0 ~f:(fun c _ _ -> c + 1)
 
   let to_list tst = rev_fold tst ~init:[] ~f:(fun accum p v -> (p,v) :: accum)
 
-  let modify tst path ~f = change tst path ~f:(function | None -> None | Some v -> Some (f v))
+  let update ?default tst path ~f =
+    change tst path ~f:(function | None -> default
+                                 | Some v -> Some (f v))
 
   let rec search tst path =
     match path, tst with

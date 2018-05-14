@@ -81,15 +81,21 @@ let rev_fold_visit =
        let l = Tst.rev_fold (add_all_unit Tst.create ls) ~init:[] ~f:(fun l p _ -> p :: l) in
        List.is_sorted ~compare l)
 
-let modify =
-  Test.make ~count:100 ~name:"modify"
+let map =
+  Test.make ~count:100 ~name:"map"
     (list (list char))
     (fun ls ->
-       let f = fun v -> 10 * v in
-       let unique_list = unique ls in
-       let tst = add_all Tst.create unique_list ~f:(fun i _ -> i) in
-       let tst' = List.fold unique_list ~init:tst ~f:(fun tst l -> Tst.modify tst l ~f) in
-       List.for_alli (Tst.to_list tst') ~f:(fun _ (p,v) -> f (Option.value_exn (Tst.search tst p)) = v))
+       let f = fun _ i -> i + 1 in
+       let tst = add_all Tst.create ~f:(fun i _ -> i) ls in
+       (Tst.map tst ~f |> Tst.to_list) = (Tst.to_list tst |> List.map ~f:(fun (p,v) -> (p, f p v))))
+
+let update_add =
+  Test.make ~count:100 ~name:"update add"
+    (list (list char))
+    (fun ls ->
+       let tst = add_all_unit Tst.create ls in
+       let tst'= List.fold ls ~init:Tst.create ~f:(fun tst l -> Tst.update ~default:() tst l ~f:ident) in
+       tst = tst')
 
 let set_equal =
   Test.make ~count:100 ~name:"set_equal"
@@ -202,7 +208,8 @@ let () =
     to_list_sorted;
     fold_visit;
     rev_fold_visit;
-    modify;
+    map;
+    update_add;
     set_equal;
     pm_search_literal;
     pm_search_wildcard;
