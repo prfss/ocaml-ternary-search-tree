@@ -20,9 +20,6 @@ module Make(Char : Comparable) = struct
 
   let create = Null
 
-  (** The most generic insertion/deletion function. If [path] is associated with [value] in [tst], [Some value] is given to [f].
-      Otherwise [None] is. And then if [f] returns [None] the association disappears. If [f] returns [Some new_value]
-      the [path] with [new_value]. *)
   let change tst path ~f =
     let new_end tst = function
       | None -> tst
