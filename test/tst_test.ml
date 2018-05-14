@@ -67,6 +67,13 @@ let to_list_sorted =
     (list (list char))
     (fun ls -> List.is_sorted ~compare @@ Tst.to_list @@ add_all_unit Tst.create ls)
 
+let to_iterator =
+  Test.make ~count:100 ~name:"to_iterator"
+    (list (list char))
+    (fun ls ->
+       let tst = add_all_unit Tst.create ls in
+       (Tst.to_iterator tst |> OSeq.to_list) = Tst.to_list tst)
+
 let fold_visit =
   Test.make ~count:100 ~name:"fold visit order"
     (list (list char))
@@ -206,6 +213,7 @@ let () =
     remove_non_member;
     count;
     to_list_sorted;
+    to_iterator;
     fold_visit;
     rev_fold_visit;
     map;

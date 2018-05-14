@@ -88,6 +88,15 @@ module Make(Char : Comparable) = struct
 
   let to_list tst = rev_fold tst ~init:[] ~f:(fun accum p v -> (p,v) :: accum)
 
+  let to_iterator tst =
+    let open OSeq.Generator in
+    let rec aux rev_path = function
+      | Null -> empty
+      | End (v, m) -> yield (List.rev rev_path, v) >>= fun () -> aux rev_path m
+      | Branch (c, l, m, r) ->
+        aux rev_path l >>= fun () -> aux (c :: rev_path) m >>= fun () -> aux rev_path r
+    in run (aux [] tst)
+
   let update ?default tst path ~f =
     change tst path ~f:(function | None -> default
                                  | Some v -> Some (f v))

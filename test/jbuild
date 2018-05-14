@@ -2,7 +2,7 @@
 
 (executable
  ((name tst_test)
-  (libraries (core qcheck ternary_search_tree))))
+  (libraries (core oseq qcheck ternary_search_tree))))
 
 (alias
  ((name runtest)

@@ -2,4 +2,5 @@
 
 (library
  ((name ternary_search_tree)
-  (public_name ternary_search_tree)))
+  (public_name ternary_search_tree)
+  (libraries (oseq))))

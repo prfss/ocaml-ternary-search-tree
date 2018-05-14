@@ -18,6 +18,7 @@ module Make :
     val iter : 'v t -> f:(Char.t list -> 'v -> unit) -> unit
     val count : 'v t -> int
     val to_list : 'v t -> (Char.t list * 'v) list
+    val to_iterator : 'v t -> (Char.t list * 'v) OSeq.t
     val update : ?default:'v -> 'v t -> Char.t list -> f:('v -> 'v) -> 'v t
     val search : 'v t -> Char.t list -> 'v option
     val mem : 'v t -> Char.t list -> bool
