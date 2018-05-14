@@ -162,6 +162,15 @@ module Make(Char : Comparable) = struct
       | 0            -> subtree m path'
       | _            -> subtree r path
 
-  let set_equal tst other = to_list tst = to_list other
+  let rec leq l1 l2 ~eq =
+    match l1, l2 with
+    | [], [] -> true
+    | x :: l1', y :: l2' when eq x y -> leq l1' l2' ~eq
+    | _ -> false
+
+  let set_equal tst other =
+    let eq = fun (l1,v1) (l2,v2) ->
+      leq l1 l2 ~eq:(fun x y -> Char.compare x y = 0) && v1 = v2
+    in OSeq.equal ~eq (to_iterator tst) (to_iterator other)
 
 end
